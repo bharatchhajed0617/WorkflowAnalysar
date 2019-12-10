@@ -248,11 +248,40 @@ namespace WorkflowAnalyser
                 foreach (XmlNode item in node.SelectNodes("./*/xaml:Variable", Xaml.NamespaceManager))
                     if (!UnusedVariables_IsVariableUsedInContainer(item.Attributes["Name"].Value, node))
                         dtEmptyCatch.Rows.Add(Xaml.GetInternalPath(node), item.Attributes["Name"].Value);
-            }        
+            }
 
         }
 
+        public void CommentedCode(string strWorkflow, DataTable dtCommented)
+        {
+            dtCommented.Columns.Add("Path");
+            dtCommented.Columns.Add("Variable Name");
 
+
+            Xaml.ParseWorkflowFile(strWorkflow);
+            string xPathExpression = "//ui:CommentOut | /xaml:Activity/xaml:Flowchart/xaml:FlowStep[not(@x:Name)]";
+            string variableNammingPattern = "(^(dt_)*([A-Z][a-z0-9]*)+$)";
+            foreach (XmlNode node in Xaml.XmlDocument.DocumentElement.SelectNodes(xPathExpression, Xaml.NamespaceManager))
+            {
+                XmlNode xmlNode = node;
+                if (node.LocalName.Equals("FlowStep"))
+                    if (node.ChildNodes[0].LocalName.Equals("WorkflowViewStateService.ViewState"))
+                        xmlNode = node.ChildNodes[1];
+                    else
+                        xmlNode = node.ChildNodes[0];
+
+                if (xmlNode.Attributes["sap2010:Annotation.AnnotationText"] == null)
+                {
+                    string displayName = string.Empty;
+                    if (node.Attributes["DisplayName"] != null)
+                        displayName = node.Attributes["DisplayName"].Value;
+                    else
+                        displayName = node.LocalName;
+
+                    dtCommented.Rows.Add(Xaml.GetInternalPath(node),displayName);
+                }
+            }
+        }
 
         private bool UnusedVariables_IsVariableUsedInContainer(string variableName, XmlNode containerNode)
         {
