@@ -33,7 +33,7 @@ namespace WorkflowAnalyser.XAML
         public static string GetInternalPath(XmlNode node)
         {
             List<string> path = new List<string>();
-            node = node.ParentNode;
+            //node = node.ParentNode;
             while(node.LocalName != "Activity" && node.LocalName != "Transition.To")
             {
                 if (node.LocalName != "FlowStep" && node.Attributes["sap2010:WorkflowViewState.IdRef"] !=null)
@@ -57,8 +57,12 @@ namespace WorkflowAnalyser.XAML
             string checkRegex = @".*\W+" + variableName + @"\W+.*";
             if (stringValue != null && stringValue.StartsWith("["))
             {
-                Regex.Replace(stringValue, "\".*?\"", "", RegexOptions.Compiled| RegexOptions.IgnoreCase);
-                var regex = new Regex(checkRegex, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                if (stringValue.Replace("[","").Replace("]","").ToLower().Equals(variableName.ToLower()))
+                {
+                    return true;
+                }
+                Regex.Replace(stringValue, ".*?", "", RegexOptions.Compiled| RegexOptions.IgnoreCase);
+                var regex = new Regex(checkRegex, RegexOptions.IgnoreCase);
                 Match match = regex.Match(variableName);
                 return match.Success;
             }

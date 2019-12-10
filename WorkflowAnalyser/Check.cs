@@ -43,6 +43,7 @@ namespace WorkflowAnalyser
 
             }
         }
+
         public void VariableNammingConvension(string strWorkflow, DataTable dtVariable)
         {
             dtVariable.Columns.Add("Path");
@@ -200,7 +201,6 @@ namespace WorkflowAnalyser
             }
         }
 
-
         public void DeeplyNested(string strWorkflow, DataTable dtNested)
         {
             dtNested.Columns.Add("Path");
@@ -237,28 +237,32 @@ namespace WorkflowAnalyser
             }
         }
 
-
         public void UnusedVariable(string strWorkflow, DataTable dtEmptyCatch)
         {
             dtEmptyCatch.Columns.Add("Path");
             dtEmptyCatch.Columns.Add("Variable Name");
 
             Xaml.ParseWorkflowFile(strWorkflow);
-
-            foreach (XmlNode node in Xaml.XmlDocument.DocumentElement.SelectNodes("//*[xaml:Sequence.Variables] | //*[xaml:Flowchart.Variables] | //*[xaml:StateMachine.Variables]", Xaml.NamespaceManager))
+            foreach (XmlNode node in Xaml.XmlDocument.DocumentElement.SelectNodes("//*[xaml:Sequence.Variables] | //*[xaml:Flowchart.Variables] | //*[xaml:StateMachine.Variables]", Xaml.NamespaceManager))// or //*[xaml:Flowchart.Variables] or //*[xaml:StateMachine.Variables]
             {
                 foreach (XmlNode item in node.SelectNodes("./*/xaml:Variable", Xaml.NamespaceManager))
-                    if (UnusedVariables_IsVariableUsedInContainer(item.Attributes["Name"].Value, node))
-                        dtEmptyCatch.Rows.Add(Xaml.GetInternalPath(node), item.Attributes["Name"]);
-            }
+                    if (!UnusedVariables_IsVariableUsedInContainer(item.Attributes["Name"].Value, node))
+                        dtEmptyCatch.Rows.Add(Xaml.GetInternalPath(node), item.Attributes["Name"].Value);
+            }        
 
         }
+
+
+
         private bool UnusedVariables_IsVariableUsedInContainer(string variableName, XmlNode containerNode)
         {
             bool variableUsed = false;
             foreach (XmlNode node in containerNode.SelectNodes(".//*[not(local-name()='Reference') and not(local-name()='DebugSymbol.Symbol') and (string-length(text()) > 0)]"))
                 if (Xaml.IsVariableUsed(variableName, node.InnerText))
+                {
+                    variableUsed = true;
                     break;
+                }
 
             if (!variableUsed)
                 foreach (XmlNode item in containerNode.SelectNodes(".//@*"))
@@ -269,4 +273,5 @@ namespace WorkflowAnalyser
             return variableUsed;
         }
     }
+
 }
