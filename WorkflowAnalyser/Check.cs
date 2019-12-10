@@ -260,7 +260,7 @@ namespace WorkflowAnalyser
 
             Xaml.ParseWorkflowFile(strWorkflow);
             string xPathExpression = "//ui:CommentOut | /xaml:Activity/xaml:Flowchart/xaml:FlowStep[not(@x:Name)]";
-            string variableNammingPattern = "(^(dt_)*([A-Z][a-z0-9]*)+$)";
+         
             foreach (XmlNode node in Xaml.XmlDocument.DocumentElement.SelectNodes(xPathExpression, Xaml.NamespaceManager))
             {
                 XmlNode xmlNode = node;
