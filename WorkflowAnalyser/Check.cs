@@ -283,6 +283,8 @@ namespace WorkflowAnalyser
             }
         }
 
+
+
         private bool UnusedVariables_IsVariableUsedInContainer(string variableName, XmlNode containerNode)
         {
             bool variableUsed = false;
