@@ -62,7 +62,8 @@ namespace WorkflowAnalyser.XAML
                 Match match = regex.Match(variableName);
                 return match.Success;
             }
-            return false;
+            //to be chaned to false
+            return true;
 
         }
     }
